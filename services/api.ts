@@ -108,6 +108,7 @@ class ApiService {
      * POST request
      */
     async post<T>(endpoint: string, data?: any, includeAuth: boolean = true): Promise<T> {
+        console.log('API_BASE_URL', this.baseUrl);
         const response = await fetch(`${this.baseUrl}${endpoint}`, {
             method: 'POST',
             headers: this.getHeaders(includeAuth),
