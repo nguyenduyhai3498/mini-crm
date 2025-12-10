@@ -215,7 +215,7 @@ export const PlannerView = () => {
                             {getPostsForDay(day).map(post => (
                                 <div key={post.id} className="calendar-post" onClick={() => setSelectedPost(post)}>
                                     <span className={`post-dot ${post.platform.toLowerCase()}`}></span>
-                                    {post.title}
+                                    {post.content.substring(0, 10)}...
                                 </div>
                             ))}
                         </div>
@@ -227,7 +227,6 @@ export const PlannerView = () => {
 
     const renderListView = () => {
         const upcomingPosts = posts
-            .filter(post => new Date(post.date + 'T00:00:00') >= new Date(new Date().toDateString()))
             .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
         
         const groupedPosts = upcomingPosts.reduce((acc, post) => {
@@ -248,8 +247,11 @@ export const PlannerView = () => {
                             <div key={post.id} className="list-item" onClick={() => setSelectedPost(post)}>
                                 <span className={`post-dot ${post.platform.toLowerCase()}`}></span>
                                 <div className="list-item-content">
-                                    <p className="list-item-title">{post.title}</p>
-                                    <p className="list-item-platform">{post.platform}</p>
+                                    <p className="list-item-title">{post.content.substring(0, 50)}...</p>
+                                    <div style={{display: 'flex', alignItems: 'center', gap: '8px'}}>
+                                        <p className="list-item-platform">{post.platform}</p>
+                                        <span className={`status-indicator ${post.status.toLowerCase()}`}>{post.status}</span>
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -270,7 +272,7 @@ export const PlannerView = () => {
              endOfWeek.setDate(startOfWeek.getDate() + 6);
              return `${startOfWeek.toLocaleDateString('default', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('default', { month: 'short', day: 'numeric', year: 'numeric' })}`;
         }
-        return 'Upcoming Posts';
+        return 'All Scheduled Posts';
     };
 
     return (

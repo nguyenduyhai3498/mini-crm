@@ -7,6 +7,7 @@ import { MarketingView } from './Marketing/MarketingView';
 import { LoginView } from './LoginView';
 import { Icon } from '../components/atoms/Icon/icons'; // Import new Icon component
 import { useAuth } from '../hooks/useAuth';
+import { SettingsView } from './Settings/SettingsView';
 
 export const App = () => {
     const [activeTab, setActiveTab] = useState('marketing');
@@ -67,6 +68,8 @@ export const App = () => {
                 return <ContactsView />;
             case 'marketing':
                 return <MarketingView />;
+            case 'settings':
+                return <SettingsView />;
             default:
                 return <PlaceholderView title={navItems.find(item => item.key === activeTab)?.label || 'Page'} />;
         }

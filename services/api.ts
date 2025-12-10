@@ -12,6 +12,7 @@ class ApiService {
 
     constructor(baseUrl: string) {
         this.baseUrl = baseUrl;
+        console.log('API_BASE_URL', this.baseUrl);
     }
 
     /**
