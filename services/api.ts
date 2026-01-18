@@ -1,5 +1,5 @@
 // API Configuration
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://103.149.172.72:3000/api';
 
 interface ApiError {
     message: string;
@@ -12,6 +12,7 @@ class ApiService {
 
     constructor(baseUrl: string) {
         this.baseUrl = baseUrl;
+        console.log('API_BASE_URL', this.baseUrl);
     }
 
     /**
@@ -107,6 +108,7 @@ class ApiService {
      * POST request
      */
     async post<T>(endpoint: string, data?: any, includeAuth: boolean = true): Promise<T> {
+        console.log('API_BASE_URL', this.baseUrl);
         const response = await fetch(`${this.baseUrl}${endpoint}`, {
             method: 'POST',
             headers: this.getHeaders(includeAuth),
