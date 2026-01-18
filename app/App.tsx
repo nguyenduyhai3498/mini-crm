@@ -7,8 +7,13 @@ import { MarketingView } from './Marketing/MarketingView';
 import { LoginView } from './LoginView';
 import { Icon } from '../components/atoms/Icon/icons'; // Import new Icon component
 import { useAuth } from '../hooks/useAuth';
+import { SettingsView } from './Settings/SettingView';
+export type Language = 'en' | 'vi';
 
 export const App = () => {
+    const [language, setLanguage] = useState<Language>(() => {
+        return (localStorage.getItem('orca_system_lang') as Language) || 'en';
+    });
     const [activeTab, setActiveTab] = useState('marketing');
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const { isAuthenticated, user, logout, isLoading } = useAuth();
@@ -67,6 +72,8 @@ export const App = () => {
                 return <ContactsView />;
             case 'marketing':
                 return <MarketingView />;
+            case 'settings':
+                return <SettingsView language={language} setLanguage={setLanguage} />;
             default:
                 return <PlaceholderView title={navItems.find(item => item.key === activeTab)?.label || 'Page'} />;
         }
