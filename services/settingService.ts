@@ -36,6 +36,10 @@ export interface GetResponse {
     brandSettings: Settings[];
 }
 
+export interface RedirectResponse {
+    redirect_url: string;
+}
+
 class SettingsService {
     /**
      * Get scheduled posts with filters
@@ -60,6 +64,18 @@ class SettingsService {
         } catch (error) {
             throw error;
         }
+    }
+
+    async redirectApp(app: string) {
+        try {
+            if (app === 'facebook') {
+                const response = await apiService.get<RedirectResponse>('/open3rd/facebook/redirect');
+                return response;
+            }
+        } catch (error) {
+            throw error;
+        }
+        return null;
     }
 }
 

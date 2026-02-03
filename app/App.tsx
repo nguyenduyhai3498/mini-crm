@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import '../styles/global.css'; // Import global styles
 import { AIAgentView } from './AIAgentView';
 import { PlannerView } from './PlannerView';
@@ -10,13 +10,41 @@ import { useAuth } from '../hooks/useAuth';
 import { SettingsView } from './Settings/SettingView';
 export type Language = 'en' | 'vi';
 
+const getActiveTabFromPath = () => {
+    console.log('getActiveTabFromPath');
+    if (typeof window === 'undefined') return 'marketing';
+
+    const path = window.location.pathname.split('/')[1];
+    console.log(path);
+    return path || 'marketing';
+};
+
 export const App = () => {
     const [language, setLanguage] = useState<Language>(() => {
         return (localStorage.getItem('orca_system_lang') as Language) || 'en';
     });
-    const [activeTab, setActiveTab] = useState('marketing');
+    const [activeTab, setActiveTab] = useState<string>(getActiveTabFromPath);
     const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
     const { isAuthenticated, user, logout, isLoading } = useAuth();
+
+    useEffect(() => {
+        console.log('useEffect');
+        if (typeof window === 'undefined') return;
+
+        const syncFromPath = () => setActiveTab(getActiveTabFromPath());
+        syncFromPath();
+        window.addEventListener('popstate', syncFromPath);
+        return () => window.removeEventListener('popstate', syncFromPath);
+    }, []);
+
+    useEffect(() => {
+        if (typeof window === 'undefined') return;
+
+        const targetPath = `/${activeTab}`;
+        if (window.location.pathname !== targetPath) {
+            window.history.pushState(null, '', targetPath);
+        }
+    }, [activeTab]);
 
     const toggleSidebar = () => {
         if (window.innerWidth > 768) {
@@ -63,6 +91,7 @@ export const App = () => {
     );
 
     const renderContent = () => {
+        console.log('renderContent', process.env.VITE_API_URL);
         switch (activeTab) {
             case 'chat':
                 return <AIAgentView />; // No more `icons` prop

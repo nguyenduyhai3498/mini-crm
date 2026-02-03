@@ -231,8 +231,15 @@ export const SettingsView = ({ language, setLanguage }: { language: Language, se
         };
       
         fetchSettings();
-      }, [settingsOpen, loaded]);
+    }, [settingsOpen, loaded]);
 
+    const redirectApp = async (app: string) => {
+        const res = await settingsService.redirectApp(app);
+        console.log(res);
+        if (res) {
+            window.location.href = res.redirect_url;
+        }
+    };
     return (
         <>
         {loading && <div className="loading-overlay">Loading...</div>}
@@ -348,7 +355,7 @@ export const SettingsView = ({ language, setLanguage }: { language: Language, se
                             <Icon name="settings" style={{ width: 48, height: 48, stroke: '#ccc', marginBottom: '1rem' }} />
                             <h2>Integrations Settings</h2>
                             <p>Configure third-party connectors (Zapier, n8n, Slack) to expand your workflow.</p>
-                            <button className="generic-button" style={{ marginTop: '1rem' }}>Add Connector</button>
+                            <button className="generic-button" style={{ marginTop: '1rem' }} onClick={() => redirectApp('facebook')}>Add Connector</button>
                         </div>
                     )}
                 </div>
