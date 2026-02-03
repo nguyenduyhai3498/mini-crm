@@ -392,7 +392,7 @@ export const SettingsView = ({ language, setLanguage }: { language: Language, se
                                             <Icon name={page.platform} />
                                         </div>
                                         <div className="integration-details">
-                                            <h4>{page.name}</h4>
+                                            <h4><a href={`https://${page.platform}.com/${page.pageId}`} target="_blank" rel="noopener noreferrer">{page.name}</a></h4>
                                             <p>{page.pageId}</p>
                                             <p>{page.tokenExpiresAt}</p>
                                         </div>
