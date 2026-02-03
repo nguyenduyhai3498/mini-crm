@@ -196,6 +196,17 @@ export const SettingsView = ({ language, setLanguage }: { language: Language, se
         }
     };
 
+    const handleDeleteSocialPage = async (pageId: string) => {
+        const res = await settingsService.deleteSocialPage(pageId);
+        
+        if (res.success) {
+            setSocialPages(socialPages.filter(page => page.id !== pageId));
+            alert(res.message);
+        } else {
+            alert(res.message);
+        }
+    };
+
     const handleSaveSystem = async () => {
         setLanguage(system.language as Language);
         const res = await settingsService.update(dna, system);
@@ -387,7 +398,7 @@ export const SettingsView = ({ language, setLanguage }: { language: Language, se
                                         </div>
                                         <div className="integration-actions">
                                             <div className="btn-group" role="group" aria-label="Basic checkbox toggle button group">
-                                                <button className="delete-button" style={{ width: '100%', border: '1px solid #E53E3E', borderRadius: '8px' }}><Icon name="trash" /></button>
+                                                <button className="delete-button" style={{ width: '100%', border: '1px solid #E53E3E', borderRadius: '8px' }} onClick={() => handleDeleteSocialPage(page.id)}><Icon name="trash" /></button>
                                             </div>
                                         </div>
                                     </div>

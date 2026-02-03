@@ -87,6 +87,21 @@ class SettingsService {
             throw error;
         }
     }
+
+    async deleteSocialPage(pageId: string) {
+        try {
+            const response = await apiService.delete<{message: string}>(`/tenant/social-pages/${pageId}`);
+            return {
+                success: true,
+                message: response.message
+            };
+        } catch (error) {
+            return {
+                success: false,
+                message: error.message
+            };
+        }
+    }
 }
 
 export const settingsService = new SettingsService();
