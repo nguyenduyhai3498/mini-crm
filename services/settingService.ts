@@ -1,3 +1,4 @@
+import { SocialPage } from '@/app/Settings/SettingView';
 import { apiService } from './api';
 
 export interface Settings {
@@ -76,6 +77,15 @@ class SettingsService {
             throw error;
         }
         return null;
+    }
+
+    async getSocialPages() {
+        try {
+            const response = await apiService.get<SocialPage[]>('/tenant/social-pages');
+            return response;
+        } catch (error) {
+            throw error;
+        }
     }
 }
 

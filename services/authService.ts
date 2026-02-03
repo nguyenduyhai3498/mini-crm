@@ -70,7 +70,7 @@ class AuthService {
      */
     async getCurrentUser(): Promise<UserProfile> {
         try {
-            const response = await apiService.get<UserProfile>('/auth/me');
+            const response = await apiService.post<UserProfile>('/auth/me');
             return response;
         } catch (error) {
             throw error;

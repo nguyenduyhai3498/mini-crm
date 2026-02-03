@@ -3,6 +3,15 @@ import { settingsService } from '../../services/settingService';
 import { Icon } from '../../components/atoms/Icon/icons';
 import { Language } from '../App';
 
+export interface SocialPage {
+    id: string;
+    name: string;
+    platform: string;
+    pageId: string;
+    avatar?: string;
+    expiresAt: string;
+}
+
 export interface BrandDNA {
     industry: string;
     targetAudience: string;
@@ -172,6 +181,7 @@ export const SettingsView = ({ language, setLanguage }: { language: Language, se
     const [settingsOpen, setSettingsOpen] = useState(false);
     const [loading, setLoading] = useState(false);
     const [loaded, setLoaded] = useState(false);
+    const [socialPages, setSocialPages] = useState<SocialPage[]>([]);
 
     const [system, setSystem] = useState<SystemSettings>(defaultSystem);
 
@@ -229,6 +239,16 @@ export const SettingsView = ({ language, setLanguage }: { language: Language, se
             setLoading(false);
           }
         };
+
+        const fetchSocialPages = async () => {
+            const res = await settingsService.getSocialPages();
+            console.log('res', res);
+            if (res) {
+                setSocialPages(res);
+            }
+        };
+
+        fetchSocialPages();
       
         fetchSettings();
     }, [settingsOpen, loaded]);
@@ -351,12 +371,39 @@ export const SettingsView = ({ language, setLanguage }: { language: Language, se
                     )}
 
                     {activeTab === 'integrations' && (
-                         <div className="placeholder-view">
-                            <Icon name="settings" style={{ width: 48, height: 48, stroke: '#ccc', marginBottom: '1rem' }} />
-                            <h2>Integrations Settings</h2>
-                            <p>Configure third-party connectors (Zapier, n8n, Slack) to expand your workflow.</p>
-                            <button className="generic-button" style={{ marginTop: '1rem' }} onClick={() => redirectApp('facebook')}>Add Connector</button>
-                        </div>
+                        socialPages.length > 0 ? (
+                            <div>
+                                <button className="generic-button" style={{ marginBottom: '0.5rem', marginTop: '1rem', marginLeft: 'auto' }} onClick={() => redirectApp('facebook')}>Add Connector</button>
+                                <div className="integrations-grid">
+                                {socialPages.map(page => (
+                                    <div key={page.id} className="integration-card">
+                                        <div className="integration-icon">
+                                            <Icon name={page.platform} />
+                                        </div>
+                                        <div className="integration-details">
+                                            <h4>{page.name}</h4>
+                                            <p>{page.pageId}</p>
+                                            <p>{page.tokenExpiresAt}</p>
+                                        </div>
+                                        <div className="integration-actions">
+                                            <div className="btn-group" role="group" aria-label="Basic checkbox toggle button group">
+                                                <button className="delete-button" style={{ width: '100%', border: '1px solid #E53E3E', borderRadius: '8px' }}><Icon name="trash" /></button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                ))}
+                                </div>
+                            </div>
+                        ) : 
+                            (
+                            <div className="placeholder-view">
+                                <Icon name="settings" style={{ width: 48, height: 48, stroke: '#ccc', marginBottom: '1rem' }} />
+                                <h2>Integrations Settings</h2>
+                                <p>Configure third-party connectors (Zapier, n8n, Slack) to expand your workflow.</p>
+                                <button className="generic-button" style={{ marginTop: '1rem' }} onClick={() => redirectApp('facebook')}>Add Connector</button>
+                            </div>
+                        )
+                        
                     )}
                 </div>
             </div>

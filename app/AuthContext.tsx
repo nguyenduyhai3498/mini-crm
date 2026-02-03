@@ -34,7 +34,15 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
                 try {
                     // Try to get current user with existing token
                     const userProfile = await authService.getCurrentUser();
-                    setUser(userProfile);
+                    const userData: User = {
+                        id: userProfile.id,
+                        tenantId: userProfile.tenantId,
+                        name: userProfile.fullName,
+                        email: userProfile.email,
+                        role: userProfile.role,
+                        tenantPermissions: userProfile.tenantPermissions,
+                    };
+                    setUser(userData);
                 } catch (error) {
                     // Token is invalid or expired, clear it
                     console.error('Token validation failed:', error);
