@@ -24,6 +24,17 @@ export interface SystemSettings {
     dateFormat: 'YYYY-MM-DD' | 'DD/MM/YYYY' | 'MM/DD/YYYY';
     currency: string;
 }
+
+export interface ContentStrategy {
+    objective: string;
+    format: string;
+    focus: string;
+    occasion: string;
+    ctaIntent: string;
+    overrideLanguage: string;
+    overrideCTAUrl: string;
+}
+
 export interface GetPostsParams {
     startDate?: string; // YYYY-MM-DD
     endDate?: string; // YYYY-MM-DD
@@ -58,9 +69,9 @@ class SettingsService {
     /**
      * Update a scheduled post
      */
-    async update(brandSettings: BrandSettings, systemSettings: SystemSettings): Promise<Settings> {
+    async update(brandSettings: BrandSettings, systemSettings: SystemSettings, contentStrategy: ContentStrategy): Promise<Settings> {
         try {
-            const response = await apiService.put<Settings>('/tenant/settings', {brandSettings: brandSettings, systemSettings: systemSettings});
+            const response = await apiService.put<Settings>('/tenant/settings', {brandSettings: brandSettings, systemSettings: systemSettings, contentStrategy: contentStrategy});
             return response;
         } catch (error) {
             throw error;

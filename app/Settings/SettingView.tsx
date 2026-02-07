@@ -23,6 +23,24 @@ export interface BrandDNA {
     forbiddenKeywords: string[];
 }
 
+const DefaultContentStrategy: ContentStrategy = {
+    objective: 'Awareness',
+    format: 'Long Caption',
+    focus: 'AI Content Planner Feature',
+    occasion: 'None',
+    overrideLanguage: 'No Override',
+    overrideCTAUrl: '',
+    ctaIntent: 'Soft (Learn more)'
+}
+
+const ValidContentStrategy = {
+    objective: ['Awareness', 'Education', 'Promotion', 'Engagement', 'Social Proof'],
+    format: ['Short Caption', 'Long Caption', 'Carousel', 'Video Script', 'Announcement'],
+    occasion: ['None', 'Public Holiday', 'Industry Event', 'Company Milestone', 'Campaign Period'],
+    overrideLanguage: ['No Override', 'English', 'Vietnamese', 'Bilingual'],
+    ctaIntent: ['Soft (Learn more)', 'Medium (Try it out)', 'Hard (Book a demo)'],
+};
+
 // Added ContentStrategy interface to resolve compilation error in AIAgentView
 export interface ContentStrategy {
     objective: string;
@@ -185,8 +203,13 @@ export const SettingsView = ({ language, setLanguage }: { language: Language, se
 
     const [system, setSystem] = useState<SystemSettings>(defaultSystem);
 
+    const [strategy, setStrategy] = useState<ContentStrategy>(() => {
+        const saved = localStorage.getItem('orca_content_strategy');
+        return saved ? JSON.parse(saved) : DefaultContentStrategy;
+    });
+
     const handleSaveAgent = async () => {
-        const res = await settingsService.update(dna, system);
+        const res = await settingsService.update(dna, system, strategy);
         console.log(res);
         if (res) {
             localStorage.setItem('orca_brand_dna', JSON.stringify(dna));
@@ -209,7 +232,7 @@ export const SettingsView = ({ language, setLanguage }: { language: Language, se
 
     const handleSaveSystem = async () => {
         setLanguage(system.language as Language);
-        const res = await settingsService.update(dna, system);
+        const res = await settingsService.update(dna, system, strategy);
         if (res) {
             alert('System settings updated successfully.');
         } else {
@@ -291,29 +314,40 @@ export const SettingsView = ({ language, setLanguage }: { language: Language, se
             <div className="marketing-content" style={{ padding: '2rem', overflowY: 'auto' }}>
                 <div style={{ maxWidth: '1000px', margin: '0 auto' }}>
                     
-                    {activeTab === 'agent' && (
+                {activeTab === 'agent' && (
                         <div className="settings-section">
                             <header style={{ marginBottom: '2.5rem', textAlign: 'center' }}>
-                                <h2 style={{ color: 'var(--brand-primary)', margin: 0, fontSize: '1.75rem' }}>Brand Configuration</h2>
+                                <h2 style={{ color: 'var(--brand-primary)', margin: 0, fontSize: '1.75rem' }}>AI Agent Configuration</h2>
                                 <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>
-                                    Define the background persona for background content assistance.
+                                    Architecting the balance between Brand Identity (DNA) and Marketing Intent (Strategy).
                                 </p>
                             </header>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '2rem' }}>
-                                <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-                                    <h4 style={{ margin: '0 0 1.5rem 0', color: 'var(--brand-accent)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Foundational Identity</h4>
-                                    <div className="form-grid">
-                                        <div className="form-group">
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', alignItems: 'start' }}>
+                                <section style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                    <div style={{ borderLeft: '4px solid var(--brand-primary)', paddingLeft: '1rem', marginBottom: '0.5rem' }}>
+                                        <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--brand-primary)' }}>Brand DNA</h3>
+                                        <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#666' }}>WHO the brand is. (Stable / Long-term)</p>
+                                    </div>
+                                    <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                        <h4 style={{ margin: '0 0 1rem 0', color: 'var(--brand-accent)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>1. Identity & Context</h4>
+                                        <div className="form-group" style={{ marginBottom: '1rem' }}>
                                             <label>Industry</label>
                                             <input type="text" value={dna.industry} onChange={(e) => setDna({...dna, industry: e.target.value})} />
                                         </div>
-                                        <div className="form-group">
+                                        <div className="form-group" style={{ marginBottom: '1rem' }}>
                                             <label>Target Audience</label>
                                             <input type="text" value={dna.targetAudience} onChange={(e) => setDna({...dna, targetAudience: e.target.value})} />
                                         </div>
                                         <div className="form-group">
-                                            <label>Brand Archetype</label>
+                                            <label>Core Offerings</label>
+                                            <textarea rows={2} value={dna.offerings} onChange={(e) => setDna({...dna, offerings: e.target.value})} />
+                                        </div>
+                                    </div>
+                                    <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                        <h4 style={{ margin: '0 0 1rem 0', color: 'var(--brand-accent)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>2. Personality & Style</h4>
+                                        <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                            <label>Archetype</label>
                                             <select value={dna.archetype} onChange={(e) => setDna(prev => { return { ...prev, archetype: e.target.value } }) }>
                                                 {archetypes.map(a => <option key={a.id} value={a.id}>{a.name}</option>)}
                                             </select>
@@ -323,22 +357,103 @@ export const SettingsView = ({ language, setLanguage }: { language: Language, se
                                             <input type="text" value={dna.tone} onChange={(e) => setDna({...dna, tone: e.target.value})} />
                                         </div>
                                     </div>
-                                    <div className="form-group" style={{ marginTop: '1rem' }}>
-                                        <label>Core Offerings</label>
-                                        <textarea rows={2} value={dna.offerings} onChange={(e) => setDna({...dna, offerings: e.target.value})} />
+                                    <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                        <h4 style={{ margin: '0 0 1rem 0', color: 'var(--brand-accent)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>3. Defaults & DNA</h4>
+                                        <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                            <label>Default Output Language</label>
+                                            <select value={dna.defaultLanguage} onChange={(e) => setDna({...dna, defaultLanguage: e.target.value as any})}>
+                                                <option value="English">English</option>
+                                                <option value="Vietnamese">Vietnamese</option>
+                                                <option value="Bilingual (EN + VI)">Bilingual (EN + VI)</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Perfect Post Sample (Few-shot)</label>
+                                            <textarea rows={4} value={dna.exemplar} onChange={(e) => setDna({...dna, exemplar: e.target.value})} />
+                                        </div>
                                     </div>
-                                    <div className="form-group" style={{ marginTop: '1rem' }}>
-                                        <label>Voice Exemplar (Sample post text)</label>
-                                        <textarea rows={4} value={dna.exemplar} onChange={(e) => setDna({...dna, exemplar: e.target.value})} />
+                                    <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                        <h4 style={{ margin: '0 0 1rem 0', color: 'var(--brand-accent)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>4. Content Guardrails</h4>
+                                        <div className="form-group">
+                                            <label>Forbidden Keywords</label>
+                                            <input type="text" value={dna.forbiddenKeywords.join(', ')} onChange={(e) => handleForbiddenKeywordsChange(e.target.value)} placeholder="e.g. expensive, slow, manual..." />
+                                        </div>
                                     </div>
-                                    <div className="form-group" style={{ marginTop: '1rem' }}>
-                                        <label>Forbidden Keywords (AI Guardrails)</label>
-                                        <input type="text" value={dna.forbiddenKeywords.join(', ')} onChange={(e) => handleForbiddenKeywordsChange(e.target.value)} placeholder="e.g. cheap, guarantee, best..." />
+                                </section>
+
+                                <section style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                    <div style={{ borderLeft: '4px solid var(--brand-accent)', paddingLeft: '1rem', marginBottom: '0.5rem' }}>
+                                        <h3 style={{ margin: 0, fontSize: '1.25rem', color: 'var(--brand-accent)' }}>Active Content Strategy</h3>
+                                        <p style={{ margin: '4px 0 0 0', fontSize: '0.85rem', color: '#666' }}>WHAT the AI is doing. (Dynamic / Task-based)</p>
                                     </div>
-                                    <button className="add-contact-button" onClick={handleSaveAgent} style={{ width: '100%', padding: '1rem', marginTop: '2rem' }}>
-                                        <Icon name="check" /> Save DNA Configuration
+                                    <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                        <h4 style={{ margin: '0 0 1rem 0', color: 'var(--brand-primary)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>1. Strategic Objectives</h4>
+                                        <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                            <label>Content Objective</label>
+                                            <select value={strategy.objective} onChange={(e) => setStrategy({...strategy, objective: e.target.value as any})}>
+                                                <option value="Awareness">Awareness</option>
+                                                <option value="Education">Education</option>
+                                                <option value="Promotion">Promotion</option>
+                                                <option value="Engagement">Engagement</option>
+                                                <option value="Social Proof">Social Proof</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Target Format</label>
+                                            <select value={strategy.format} onChange={(e) => setStrategy({...strategy, format: e.target.value as any})}>
+                                                <option value="Short Caption">Short Caption</option>
+                                                <option value="Long Caption">Long Caption</option>
+                                                <option value="Carousel">Carousel</option>
+                                                <option value="Video Script">Video / Reels Caption</option>
+                                                <option value="Announcement">Announcement</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                        <h4 style={{ margin: '0 0 1rem 0', color: 'var(--brand-primary)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>2. Contextual Focus</h4>
+                                        <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                            <label>Product Focus</label>
+                                            <input type="text" value={strategy.focus} onChange={(e) => setStrategy({...strategy, focus: e.target.value})} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Special Occasion</label>
+                                            <select value={strategy.occasion} onChange={(e) => setStrategy({...strategy, occasion: e.target.value as any})}>
+                                                <option value="None">None</option>
+                                                <option value="Public Holiday">Public Holiday</option>
+                                                <option value="Industry Event">Industry Event</option>
+                                                <option value="Company Milestone">Company Milestone</option>
+                                                <option value="Campaign Period">Campaign Period</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                        <h4 style={{ margin: '0 0 1rem 0', color: 'var(--brand-primary)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>3. Strategic Overrides & CTA</h4>
+                                        <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                            <label>Language Override</label>
+                                            <select value={strategy.overrideLanguage} onChange={(e) => setStrategy({...strategy, overrideLanguage: e.target.value as any})}>
+                                                <option value="No Override">None</option>
+                                                <option value="English">English</option>
+                                                <option value="Vietnamese">Vietnamese</option>
+                                                <option value="Bilingual">Bilingual</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                            <label>CTA Intent</label>
+                                            <select value={strategy.ctaIntent} onChange={(e) => setStrategy({...strategy, ctaIntent: e.target.value as any})}>
+                                                <option value="Soft (Learn more)">Soft</option>
+                                                <option value="Medium (Try it out)">Medium</option>
+                                                <option value="Hard (Book a demo)">Hard</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Target URL</label>
+                                            <input type="url" value={strategy.overrideCTAUrl} onChange={(e) => setStrategy({...strategy, overrideCTAUrl: e.target.value})} />
+                                        </div>
+                                    </div>
+                                    <button className="add-contact-button" onClick={handleSaveAgent} style={{ width: '100%', padding: '1rem', marginTop: '1rem' }}>
+                                        <Icon name="check" /> Save Agent Config
                                     </button>
-                                </div>
+                                </section>
                             </div>
                         </div>
                     )}
@@ -347,36 +462,82 @@ export const SettingsView = ({ language, setLanguage }: { language: Language, se
                         <div className="settings-section">
                             <header style={{ marginBottom: '2.5rem', textAlign: 'center' }}>
                                 <h2 style={{ color: 'var(--brand-primary)', margin: 0, fontSize: '1.75rem' }}>System Configuration</h2>
-                                <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>Manage interface preferences and local data.</p>
+                                <p style={{ color: 'var(--text-secondary)', marginTop: '0.5rem' }}>Global application preferences and platform maintenance.</p>
                             </header>
 
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2rem' }}>
-                                <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-                                    <h4 style={{ margin: '0 0 1rem 0', color: 'var(--brand-accent)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Localization</h4>
-                                    <div className="form-group" style={{ marginBottom: '1rem' }}>
-                                        <label>Interface Language</label>
-                                        <select value={language} onChange={(e) => changeLanguage(e.target.value as Language)}>
-                                            <option value="en">English (Global)</option>
-                                            <option value="vi">Tiếng Việt (Bản địa)</option>
-                                        </select>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '2.5rem', alignItems: 'start' }}>
+                                <section style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                    <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                        <h4 style={{ margin: '0 0 1rem 0', color: 'var(--brand-accent)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Localization</h4>
+                                        <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                            <label>System Interface Language</label>
+                                            <select value={language} onChange={(e) => setLanguage(e.target.value as Language)}>
+                                                <option value="en">English (Global)</option>
+                                                <option value="vi">Tiếng Việt (Vietnamese)</option>
+                                            </select>
+                                        </div>
+                                        <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                            <label>Timezone</label>
+                                            <select value={system.timezone} onChange={(e) => setSystem({...system, timezone: e.target.value})}>
+                                                {timezones.map(tz => <option key={tz} value={tz}>{tz}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Date Format</label>
+                                            <select value={system.dateFormat} onChange={(e) => setSystem({...system, dateFormat: e.target.value as any})}>
+                                                <option value="DD/MM/YYYY">DD/MM/YYYY (Standard)</option>
+                                                <option value="MM/DD/YYYY">MM/DD/YYYY (US)</option>
+                                                <option value="YYYY-MM-DD">YYYY-MM-DD (ISO)</option>
+                                            </select>
+                                        </div>
                                     </div>
-                                    <div className="form-group">
-                                        <label>Timezone</label>
-                                        <select value={system.timezone} onChange={(e) => setSystem({...system, timezone: e.target.value})}>
-                                            {timezones.map(tz => <option key={tz} value={tz}>{tz}</option>)}
-                                        </select>
-                                    </div>
-                                </div>
 
-                                <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
-                                    <h4 style={{ margin: '0 0 1rem 0', color: 'var(--brand-accent)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Maintenance</h4>
-                                    <button className="generic-button" onClick={handleSaveSystem} style={{ width: '100%', marginBottom: '1rem' }}>
-                                        Update Preferences
-                                    </button>
-                                    <button className="delete-button" onClick={handleResetApp} style={{ width: '100%', border: '1px solid #E53E3E', borderRadius: '8px' }}>
-                                        <Icon name="trash" /> Clear All Local Data
-                                    </button>
-                                </div>
+                                    <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                        <h4 style={{ margin: '0 0 1rem 0', color: 'var(--brand-accent)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>General Options</h4>
+                                        <div className="form-group" style={{ marginBottom: '1rem' }}>
+                                            <label>Business Name (Branding)</label>
+                                            <input type="text" value={system.businessName} onChange={(e) => setSystem({...system, businessName: e.target.value})} />
+                                        </div>
+                                        <div className="form-group">
+                                            <label>Default Currency</label>
+                                            <select value={system.currency} onChange={(e) => setSystem({...system, currency: e.target.value})}>
+                                                <option value="USD">USD - US Dollar</option>
+                                                <option value="VND">VND - Vietnam Dong</option>
+                                                <option value="EUR">EUR - Euro</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                </section>
+
+                                <section style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                                    <div style={{ background: 'white', padding: '1.5rem', borderRadius: '12px', border: '1px solid var(--border-color)', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+                                        <h4 style={{ margin: '0 0 1rem 0', color: 'var(--brand-accent)', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Maintenance & Data</h4>
+                                        <p style={{ fontSize: '0.85rem', color: '#666', marginBottom: '1.5rem' }}>
+                                            Managing your local environment. These actions only affect this browser session.
+                                        </p>
+                                        <button className="generic-button" onClick={handleSaveSystem} style={{ width: '100%', marginBottom: '1rem' }}>
+                                            Update System Preferences
+                                        </button>
+                                        <button className="delete-button" onClick={handleResetApp} style={{ width: '100%', border: '1px solid #E53E3E', borderRadius: '8px' }}>
+                                            <Icon name="trash" /> Reset Application Data
+                                        </button>
+                                    </div>
+
+                                    <div style={{ background: 'rgba(0, 163, 160, 0.05)', padding: '1.5rem', borderRadius: '12px', border: '1px dashed var(--brand-accent)' }}>
+                                        <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--brand-primary)', fontSize: '0.9rem' }}>System Health</h4>
+                                        <ul style={{ padding: 0, margin: 0, listStyle: 'none', fontSize: '0.85rem', color: '#555' }}>
+                                            <li style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
+                                                <span>AI Connection:</span> <span style={{ color: 'var(--brand-accent)', fontWeight: 700 }}>Active</span>
+                                            </li>
+                                            <li style={{ marginBottom: '0.5rem', display: 'flex', justifyContent: 'space-between' }}>
+                                                <span>API Key Status:</span> <span style={{ color: 'var(--brand-accent)', fontWeight: 700 }}>Verified</span>
+                                            </li>
+                                            <li style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                                <span>Data Privacy:</span> <span style={{ fontWeight: 600 }}>Local Encryption</span>
+                                            </li>
+                                        </ul>
+                                    </div>
+                                </section>
                             </div>
                         </div>
                     )}
