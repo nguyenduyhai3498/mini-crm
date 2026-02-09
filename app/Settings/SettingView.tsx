@@ -55,11 +55,17 @@ export interface ContentStrategy {
 export interface SystemSettings {
     language: string;
     timezone: string;
+    dateFormat: string;
+    businessName: string;
+    currency: string;
 }
 
 const defaultSystem: SystemSettings = {
     language: 'en',
     timezone: 'ICT (Bangkok, Hanoi, Jakarta)',
+    dateFormat: 'DD/MM/YYYY',
+    businessName: '',
+    currency: 'USD',
 };
 
 const archetypes = [
@@ -267,6 +273,8 @@ export const SettingsView = ({ language, setLanguage }: { language: Language, se
             console.log('res', res);
             if (res) {
               setDna(res.brandSettings);
+              setSystem(res.systemSettings);
+              setStrategy(res.contentStrategy);
               setLoaded(true);
             }
           } finally {

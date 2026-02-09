@@ -6,6 +6,7 @@ export interface Settings {
     tenantId: string;
     brandSettings: BrandSettings;
     systemSettings: SystemSettings;
+    contentStrategy: ContentStrategy;
 }
 export interface BrandSettings {
     industry: string;
@@ -45,7 +46,9 @@ export interface GetPostsParams {
 
 export interface GetResponse {
     statusCode: number;
-    brandSettings: Settings[];
+    brandSettings: BrandSettings;
+    systemSettings: SystemSettings;
+    contentStrategy: ContentStrategy;
 }
 
 export interface RedirectResponse {
